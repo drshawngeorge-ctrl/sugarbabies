@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Neonatal Glucose Surveillance — CLS v1.0</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F6F4EF;
+    --panel:#FFFFFF;
+    --ink:#1B2A2C;
+    --ink-soft:#4A5A5C;
+    --teal:#0E6B65;
+    --teal-deep:#0A4F4B;
+    --rust:#A5502F;
+    --moss:#4C7A5B;
+    --line:#DCD6C9;
+    --mono:'IBM Plex Mono', monospace;
+    --sans:'IBM Plex Sans', system-ui, sans-serif;
+    --disp:'Fraunces', serif;
+    --radius:10px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--sans);
+    line-height:1.5;
+    padding-bottom:80px;
+  }
+  .wrap{max-width:640px;margin:0 auto;padding:0 20px;}
+
+  header{
+    padding:28px 20px 20px;
+    border-bottom:1px solid var(--line);
+    background:var(--panel);
+  }
+  header .wrap{display:flex;flex-direction:column;gap:4px;}
+  .eyebrow{
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--teal-deep);
+  }
+  h1{
+    font-family:var(--disp);
+    font-weight:600;
+    font-size:24px;
+    margin:2px 0 4px;
+    color:var(--ink);
+  }
+  .subtitle{font-size:13.5px;color:var(--ink-soft);max-width:52ch;}
+
+  main{padding-top:20px;}
+
+  .card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:20px;
+    margin-bottom:16px;
+  }
+  .card h2{
+    font-family:var(--sans);
+    font-weight:600;
+    font-size:13px;
+    letter-spacing:0.04em;
+    text-transform:uppercase;
+    color:var(--teal-deep);
+    margin:0 0 14px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .card h2 .step{
+    font-family:var(--mono);
+    background:var(--teal-deep);
+    color:#fff;
+    width:20px;height:20px;
+    border-radius:50%;
+    display:inline-flex;align-items:center;justify-content:center;
+    font-size:11px;
+  }
+
+  label{
+    display:block;
+    font-size:13px;
+    font-weight:500;
+    color:var(--ink);
+    margin-bottom:5px;
+  }
+  .field{margin-bottom:14px;}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+
+  input[type=number], select{
+    width:100%;
+    padding:10px 11px;
+    font-family:var(--mono);
+    font-size:15px;
+    border:1px solid #C7C0AF;
+    border-radius:7px;
+    background:#FCFBF8;
+    color:var(--ink);
+  }
+  input[type=number]:focus, select:focus{
+    outline:2px solid var(--teal);
+    outline-offset:1px;
+    border-color:var(--teal);
+  }
+  select{font-family:var(--sans);}
+
+  .check{
+    display:flex;
+    align-items:flex-start;
+    gap:9px;
+    padding:8px 0;
+    font-size:13.5px;
+    cursor:pointer;
+  }
+  .check input{margin-top:3px;flex-shrink:0;width:16px;height:16px;accent-color:var(--rust);}
+  .check span{color:var(--ink-soft);}
+
+  /* Exclusion banner */
+  .exclusion{
+    background:#FBEDE7;
+    border:1px solid #E3B29C;
+    border-radius:var(--radius);
+    padding:18px 20px;
+    margin-bottom:16px;
+  }
+  .exclusion .tag{
+    font-family:var(--mono);
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:0.06em;
+    color:var(--rust);
+    font-weight:600;
+  }
+  .exclusion p{margin:8px 0 0;font-size:14px;color:#5C3626;}
+
+  /* Results */
+  .result-card{
+    border-radius:var(--radius);
+    padding:22px 20px;
+    margin-bottom:16px;
+    border:1px solid var(--line);
+  }
+  .result-card.indicated{background:#EFF6F3;border-color:#BFD9CD;}
+  .result-card.none{background:#F1F0EA;}
+
+  .result-headline{
+    font-family:var(--disp);
+    font-size:20px;
+    font-weight:600;
+    margin:0 0 4px;
+  }
+  .result-headline.indicated{color:var(--teal-deep);}
+  .result-headline.none{color:var(--moss);}
+
+  .factor-list{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 4px;}
+  .factor-pill{
+    font-family:var(--mono);
+    font-size:11.5px;
+    padding:4px 9px;
+    border-radius:20px;
+    background:var(--teal-deep);
+    color:#fff;
+  }
+  .factor-pill.assumption{background:var(--rust);}
+  .factor-pill.assumption::after{content:" *";}
+
+  .growth-summary{
+    font-size:13.5px;color:var(--ink-soft);
+    margin:10px 0;
+    padding:10px 12px;
+    background:rgba(0,0,0,0.025);
+    border-radius:6px;
+    font-family:var(--mono);
+  }
+  .growth-summary b{color:var(--ink);font-family:var(--sans);}
+
+  /* Timeline — the signature element */
+  .timeline{margin:18px 0 6px;}
+  .timeline-label{font-size:12px;color:var(--ink-soft);margin-bottom:8px;font-family:var(--mono);}
+  .timeline-track{
+    position:relative;
+    height:34px;
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:6px;
+    overflow:hidden;
+  }
+  .timeline-fill{
+    position:absolute;top:0;left:0;bottom:0;
+    background:linear-gradient(90deg, var(--teal) 0%, var(--teal-deep) 100%);
+    border-radius:6px 0 0 6px;
+  }
+  .timeline-ticks{position:absolute;inset:0;display:flex;align-items:flex-end;}
+  .tick{
+    position:absolute;top:0;bottom:0;
+    width:1px;background:rgba(255,255,255,0.5);
+  }
+  .tick-label{
+    position:absolute;
+    top:38px;
+    font-family:var(--mono);
+    font-size:10px;
+    color:var(--ink-soft);
+    transform:translateX(-50%);
+    white-space:nowrap;
+  }
+  .timeline-wrap{position:relative;padding-bottom:20px;}
+
+  .stop-note{
+    font-size:12.5px;
+    color:var(--ink-soft);
+    margin-top:22px;
+    padding-top:12px;
+    border-top:1px dashed var(--line);
+  }
+
+  .disclaimer-footer{
+    font-size:11.5px;
+    color:var(--ink-soft);
+    margin-top:20px;
+    line-height:1.6;
+  }
+  .disclaimer-footer .asterisk-note{
+    display:flex;align-items:center;gap:5px;
+    margin-bottom:6px;
+  }
+  .disclaimer-footer .dot{
+    width:8px;height:8px;border-radius:50%;background:var(--rust);flex-shrink:0;
+  }
+
+  footer{
+    text-align:center;
+    font-size:11px;
+    color:var(--ink-soft);
+    padding:24px 20px 8px;
+    font-family:var(--mono);
+  }
+
+  @media (max-width:420px){
+    .row3{grid-template-columns:1fr 1fr;}
+    .row3 > *:last-child{grid-column:1 / -1;}
+    h1{font-size:21px;}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{transition:none !important;}
+  }
+
+  .timeline-fill{transition:width 0.3s ease;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <span class="eyebrow">Bedside tool · Transitional period (0–72h)</span>
+    <h1>Neonatal Glucose Surveillance</h1>
+    <div class="subtitle">Based on the 2025 CPS position statement on newborns at risk for low blood glucose. Not a substitute for clinical judgement.</div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <div class="card">
+    <h2><span class="step">1</span>Clinical status</h2>
+    <label class="check"><input type="checkbox" id="symptomatic"><span>Infant is symptomatic (jitteriness, apnea, lethargy, poor feeding, etc.)</span></label>
+    <label class="check"><input type="checkbox" id="persistent"><span>Hypoglycemia persisting beyond 72 hours</span></label>
+    <label class="check"><input type="checkbox" id="nicu"><span>NICU / requires individualized management</span></label>
+    <label class="check"><input type="checkbox" id="metabolic"><span>Known metabolic or endocrine disease</span></label>
+  </div>
+
+  <div id="exclusionBanner" class="exclusion" style="display:none;">
+    <span class="tag">Outside tool scope</span>
+    <p>This tool is intended for asymptomatic transitional hypoglycemia only. Follow institutional protocols for symptomatic or persistent hypoglycemia.</p>
+  </div>
+
+  <div id="mainForm">
+    <div class="card">
+      <h2><span class="step">2</span>Infant</h2>
+      <div class="row3">
+        <div class="field">
+          <label for="gaWeeks">GA (weeks)</label>
+          <input type="number" id="gaWeeks" min="22" max="43" placeholder="39">
+        </div>
+        <div class="field">
+          <label for="gaDays">GA (+days)</label>
+          <input type="number" id="gaDays" min="0" max="6" placeholder="1">
+        </div>
+        <div class="field">
+          <label for="sex">Sex</label>
+          <select id="sex">
+            <option value="">—</option>
+            <option value="female">Female</option>
+            <option value="male">Male</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label for="bw">Birthweight (g)</label>
+        <input type="number" id="bw" min="200" max="6000" placeholder="2880">
+      </div>
+    </div>
+
+    <div class="card">
+      <h2><span class="step">3</span>Maternal</h2>
+      <div class="field">
+        <label for="diabetes">Diabetes</label>
+        <select id="diabetes">
+          <option value="none">None</option>
+          <option value="gdm">Gestational (GDM)</option>
+          <option value="type1">Type 1</option>
+          <option value="type2">Type 2</option>
+        </select>
+      </div>
+      <label class="check"><input type="checkbox" id="betaBlocker"><span>Labetalol / other beta-blocker exposure</span></label>
+    </div>
+  </div>
+
+  <div id="results"></div>
+
+  <div class="disclaimer-footer">
+    <div class="asterisk-note"><span class="dot"></span><span>Rust-tagged items are working assumptions where the CPS guideline is silent (e.g. maternal beta-blocker duration), not sourced guideline values — confirm against local institutional protocol.</span></div>
+  </div>
+
+</main>
+
+<footer>CLS v1.0 · no data leaves this device · not for symptomatic or persistent hypoglycemia</footer>
+
+<script>
+// ---- Reference data (Kramer et al. 2001 / Canada.ca, weeks 22-43) ----
+const REF = {
+  male: {22:{p3:338,p5:368,p10:401,p50:490,p90:587,p95:627,p97:659},23:{p3:406,p5:434,p10:475,p50:589,p90:714,p95:762,p97:797},24:{p3:468,p5:498,p10:547,p50:690,p90:844,p95:902,p97:940},25:{p3:521,p5:557,p10:617,p50:795,p90:981,p95:1048,p97:1092},26:{p3:571,p5:614,p10:686,p50:908,p90:1125,p95:1200,p97:1251},27:{p3:627,p5:677,p10:763,p50:1033,p90:1278,p95:1358,p97:1416},28:{p3:694,p5:752,p10:853,p50:1173,p90:1445,p95:1532,p97:1598},29:{p3:780,p5:845,p10:964,p50:1332,p90:1629,p95:1729,p97:1809},30:{p3:885,p5:959,p10:1099,p50:1507,p90:1837,p95:1955,p97:2053},31:{p3:1012,p5:1098,p10:1259,p50:1698,p90:2069,p95:2209,p97:2327},32:{p3:1164,p5:1266,p10:1444,p50:1906,p90:2319,p95:2478,p97:2614},33:{p3:1344,p5:1460,p10:1648,p50:2127,p90:2580,p95:2750,p97:2897},34:{p3:1552,p5:1677,p10:1866,p50:2360,p90:2851,p95:3029,p97:3184},35:{p3:1783,p5:1907,p10:2091,p50:2600,p90:3132,p95:3318,p97:3475},36:{p3:2024,p5:2144,p10:2321,p50:2845,p90:3411,p95:3604,p97:3759},37:{p3:2270,p5:2384,p10:2552,p50:3080,p90:3665,p95:3857,p97:4003},38:{p3:2498,p5:2605,p10:2766,p50:3290,p90:3877,p95:4065,p97:4202},39:{p3:2684,p5:2786,p10:2942,p50:3465,p90:4049,p95:4232,p97:4361},40:{p3:2829,p5:2927,p10:3079,p50:3613,p90:4200,p95:4382,p97:4501},41:{p3:2926,p5:3025,p10:3179,p50:3733,p90:4328,p95:4512,p97:4631},42:{p3:2960,p5:3070,p10:3233,p50:3815,p90:4433,p95:4631,p97:4773},43:{p3:2954,p5:3081,p10:3249,p50:3864,p90:4528,p95:4747,p97:4941}},
+  female: {22:{p3:332,p5:347,p10:385,p50:466,p90:552,p95:576,p97:576},23:{p3:379,p5:403,p10:450,p50:557,p90:669,p95:706,p97:726},24:{p3:424,p5:456,p10:513,p50:651,p90:790,p95:839,p97:887},25:{p3:469,p5:508,p10:578,p50:751,p90:918,p95:982,p97:1060},26:{p3:516,p5:562,p10:645,p50:858,p90:1060,p95:1139,p97:1247},27:{p3:569,p5:624,p10:717,p50:976,p90:1218,p95:1313,p97:1446},28:{p3:634,p5:697,p10:802,p50:1109,p90:1390,p95:1499,p97:1657},29:{p3:716,p5:787,p10:903,p50:1259,p90:1578,p95:1701,p97:1885},30:{p3:814,p5:894,p10:1022,p50:1427,p90:1783,p95:1918,p97:2121},31:{p3:938,p5:1026,p10:1168,p50:1613,p90:2004,p95:2150,p97:2347},32:{p3:1089,p5:1184,p10:1346,p50:1817,p90:2242,p95:2399,p97:2578},33:{p3:1264,p5:1369,p10:1548,p50:2035,p90:2494,p95:2664,p97:2825},34:{p3:1467,p5:1581,p10:1768,p50:2266,p90:2761,p95:2948,p97:3097},35:{p3:1695,p5:1813,p10:1998,p50:2506,p90:3037,p95:3242,p97:3384},36:{p3:1935,p5:2052,p10:2227,p50:2744,p90:3307,p95:3523,p97:3660},37:{p3:2177,p5:2286,p10:2452,p50:2968,p90:3543,p95:3752,p97:3886},38:{p3:2406,p5:2502,p10:2658,p50:3169,p90:3738,p95:3931,p97:4061},39:{p3:2589,p5:2680,p10:2825,p50:3334,p90:3895,p95:4076,p97:4202},40:{p3:2722,p5:2814,p10:2955,p50:3470,p90:4034,p95:4212,p97:4331},41:{p3:2809,p5:2906,p10:3051,p50:3576,p90:4154,p95:4330,p97:4444},42:{p3:2849,p5:2954,p10:3114,p50:3655,p90:4251,p95:4423,p97:4554},43:{p3:2862,p5:2975,p10:3159,p50:3717,p90:4333,p95:4495,p97:4685}}
+};
+const BANDS = [3,5,10,50,90,95,97];
+const KEYS = ['p3','p5','p10','p50','p90','p95','p97'];
+
+function clampWeek(w){ return Math.max(22, Math.min(43, w)); }
+
+function interpAtPercentile(gaWeeks, gaDays, sex, key){
+  const w = clampWeek(gaWeeks);
+  const a = REF[sex][w];
+  const b = REF[sex][clampWeek(w+1)];
+  const frac = gaDays/7;
+  return a[key] + frac*(b[key]-a[key]);
+}
+
+function estimatePercentile(bw, gaWeeks, gaDays, sex){
+  const values = KEYS.map(k => interpAtPercentile(gaWeeks, gaDays, sex, k));
+  let outOfRange = false;
+  if (bw <= values[0]) { outOfRange = true; return {pct: BANDS[0], outOfRange}; }
+  if (bw >= values[values.length-1]) { outOfRange = true; return {pct: BANDS[BANDS.length-1], outOfRange}; }
+  for (let i=0;i<values.length-1;i++){
+    if (bw >= values[i] && bw <= values[i+1]){
+      const frac = (bw - values[i])/(values[i+1]-values[i]);
+      return {pct: BANDS[i] + frac*(BANDS[i+1]-BANDS[i]), outOfRange:false};
+    }
+  }
+  return {pct: 50, outOfRange:false};
+}
+
+// ---- Duration rules ----
+const BASE_DURATION = { IDM:12, LGA:12, SGA:24, PRETERM:24, MATERNAL_BB:24 };
+
+function computeAll(){
+  const symptomatic = document.getElementById('symptomatic').checked;
+  const persistent = document.getElementById('persistent').checked;
+  const nicu = document.getElementById('nicu').checked;
+  const metabolic = document.getElementById('metabolic').checked;
+
+  const banner = document.getElementById('exclusionBanner');
+  const mainForm = document.getElementById('mainForm');
+  const results = document.getElementById('results');
+
+  if (symptomatic || persistent || nicu || metabolic){
+    banner.style.display = 'block';
+    mainForm.style.display = 'none';
+    results.innerHTML = '';
+    return;
+  } else {
+    banner.style.display = 'none';
+    mainForm.style.display = 'block';
+  }
+
+  const gaWeeks = parseFloat(document.getElementById('gaWeeks').value);
+  const gaDays = parseFloat(document.getElementById('gaDays').value) || 0;
+  const sex = document.getElementById('sex').value;
+  const bw = parseFloat(document.getElementById('bw').value);
+  const diabetes = document.getElementById('diabetes').value;
+  const betaBlocker = document.getElementById('betaBlocker').checked;
+
+  if (!gaWeeks || !sex || !bw){
+    results.innerHTML = '<div class="card" style="color:var(--ink-soft);font-size:13.5px;">Enter gestational age, sex, and birthweight to see the recommendation.</div>';
+    return;
+  }
+
+  const { pct, outOfRange } = estimatePercentile(bw, gaWeeks, gaDays, sex);
+  let growth = 'AGA';
+  if (pct < 10) growth = 'SGA';
+  else if (pct > 90) growth = 'LGA';
+
+  const factors = [];
+  if (gaWeeks < 37) factors.push({key:'PRETERM', label:'Preterm (<37w)', assumption:false});
+  if (growth === 'SGA') factors.push({key:'SGA', label:'SGA (<10th %ile)', assumption:false});
+  if (growth === 'LGA') factors.push({key:'LGA', label:'LGA (>90th %ile)', assumption:false});
+  if (diabetes !== 'none') factors.push({key:'IDM', label:'Infant of diabetic mother', assumption:false});
+  if (betaBlocker) factors.push({key:'MATERNAL_BB', label:'Maternal beta-blocker', assumption:true});
+
+  let html = '';
+
+  if (factors.length === 0){
+    html += `
+      <div class="result-card none">
+        <div class="result-headline none">No screening recommended</div>
+        <div class="growth-summary"><b>${gaWeeks}+${gaDays} weeks</b> · ${sex} · ${bw} g · <b>${pct.toFixed(1)}th percentile</b> (${growth})${outOfRange ? ' — outside table range, verify manually' : ''}</div>
+      </div>`;
+  } else {
+    const durationKeys = factors.map(f => f.key);
+    const duration = Math.max(...durationKeys.map(k => BASE_DURATION[k]));
+
+    html += `
+      <div class="result-card indicated">
+        <div class="result-headline indicated">Glucose surveillance indicated</div>
+        <div class="growth-summary"><b>${gaWeeks}+${gaDays} weeks</b> · ${sex} · ${bw} g · <b>${pct.toFixed(1)}th percentile</b> (${growth})${outOfRange ? ' — outside table range, verify manually' : ''}</div>
+        <div class="factor-list">
+          ${factors.map(f => `<span class="factor-pill ${f.assumption ? 'assumption':''}">${f.label}</span>`).join('')}
+        </div>
+        <div class="timeline-wrap">
+          <div class="timeline-label">First check 2h · then every 3–6h · continue to ${duration}h</div>
+          <div class="timeline-track">
+            <div class="timeline-fill" style="width:100%"></div>
+            <div class="timeline-ticks">
+              ${buildTicks(duration)}
+            </div>
+          </div>
+        </div>
+        <div class="stop-note">Stop when: minimum duration reached, feeding established, and all readings ≥2.6 mmol/L. If more than one reading &lt;2.6 mmol/L in the first 24h, consider 1–2 additional checks on day 2.</div>
+      </div>`;
+  }
+
+  results.innerHTML = html;
+}
+
+function buildTicks(duration){
+  const points = [0, 2, ...Array.from({length: Math.floor((duration-2)/4.5)}, (_,i)=> 2+4.5*(i+1)).filter(t=>t<duration), duration];
+  const uniq = [...new Set(points.map(p=>Math.round(p*10)/10))].sort((a,b)=>a-b);
+  return uniq.map(t => {
+    const pct = (t/duration)*100;
+    return `<div class="tick" style="left:${pct}%"></div><div class="tick-label" style="left:${pct}%">${t}h</div>`;
+  }).join('');
+}
+
+document.querySelectorAll('input, select').forEach(el => {
+  el.addEventListener('input', computeAll);
+  el.addEventListener('change', computeAll);
+});
+computeAll();
+</script>
+
+</body>
+</html>
