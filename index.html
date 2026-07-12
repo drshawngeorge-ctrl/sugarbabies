@@ -276,7 +276,7 @@
     <label class="check"><input type="checkbox" id="symptomatic"><span>Infant is symptomatic (jitteriness, apnea, lethargy, poor feeding, etc.)</span></label>
     <label class="check"><input type="checkbox" id="persistent"><span>Hypoglycemia persisting beyond 72 hours</span></label>
     <label class="check"><input type="checkbox" id="nicu"><span>NICU / requires individualized management</span></label>
-    <label class="check"><input type="checkbox" id="metabolic"><span>Known metabolic or endocrine disease</span></label>
+    <label class="check"><input type="checkbox" id="metabolic"><span>Known or suspected metabolic/endocrine disease or syndrome associated with hypoglycemia (e.g. hyperinsulinism, CPT-1 deficiency, Beckwith-Wiedemann)</span></label>
   </div>
 
   <div id="exclusionBanner" class="exclusion" style="display:none;">
@@ -324,12 +324,19 @@
       </div>
       <label class="check"><input type="checkbox" id="betaBlocker"><span>Labetalol / other beta-blocker exposure</span></label>
     </div>
+
+    <div class="card">
+      <h2><span class="step">4</span>Additional risk factors</h2>
+      <label class="check"><input type="checkbox" id="iugr"><span>Intrauterine growth restriction (IUGR) — antenatal diagnosis, may differ from birthweight percentile</span></label>
+      <label class="check"><input type="checkbox" id="asphyxia"><span>Perinatal asphyxia / abnormal cord gases</span></label>
+      <label class="check"><input type="checkbox" id="steroids"><span>Antenatal corticosteroid exposure (regardless of gestational age at birth — e.g. course given anticipating preterm delivery that did not occur)</span></label>
+    </div>
   </div>
 
   <div id="results"></div>
 
   <div class="disclaimer-footer">
-    <div class="asterisk-note"><span class="dot"></span><span>Rust-tagged items are working assumptions where the CPS guideline is silent (e.g. maternal beta-blocker duration), not sourced guideline values — confirm against local institutional protocol.</span></div>
+    <div class="asterisk-note"><span class="dot"></span><span>Rust-tagged items (maternal beta-blocker, IUGR, perinatal asphyxia, antenatal steroid exposure) are working assumptions where the CPS guideline lists the risk factor but does not specify a surveillance duration — not sourced guideline values, confirm against local institutional protocol.</span></div>
   </div>
 
 </main>
@@ -370,7 +377,7 @@ function estimatePercentile(bw, gaWeeks, gaDays, sex){
 }
 
 // ---- Duration rules ----
-const BASE_DURATION = { IDM:12, LGA:12, SGA:24, PRETERM:24, MATERNAL_BB:24 };
+const BASE_DURATION = { IDM:12, LGA:12, SGA:24, PRETERM:24, MATERNAL_BB:24, IUGR:24, ASPHYXIA:24, ANTENATAL_STEROIDS:24 };
 
 function computeAll(){
   const symptomatic = document.getElementById('symptomatic').checked;
@@ -398,6 +405,9 @@ function computeAll(){
   const bw = parseFloat(document.getElementById('bw').value);
   const diabetes = document.getElementById('diabetes').value;
   const betaBlocker = document.getElementById('betaBlocker').checked;
+  const iugr = document.getElementById('iugr').checked;
+  const asphyxia = document.getElementById('asphyxia').checked;
+  const steroids = document.getElementById('steroids').checked;
 
   if (!gaWeeks || !sex || !bw){
     results.innerHTML = '<div class="card" style="color:var(--ink-soft);font-size:13.5px;">Enter gestational age, sex, and birthweight to see the recommendation.</div>';
@@ -415,6 +425,9 @@ function computeAll(){
   if (growth === 'LGA') factors.push({key:'LGA', label:'LGA (>90th %ile)', assumption:false});
   if (diabetes !== 'none') factors.push({key:'IDM', label:'Infant of diabetic mother', assumption:false});
   if (betaBlocker) factors.push({key:'MATERNAL_BB', label:'Maternal beta-blocker', assumption:true});
+  if (iugr) factors.push({key:'IUGR', label:'IUGR', assumption:true});
+  if (asphyxia) factors.push({key:'ASPHYXIA', label:'Perinatal asphyxia', assumption:true});
+  if (steroids) factors.push({key:'ANTENATAL_STEROIDS', label:'Antenatal steroid exposure', assumption:true});
 
   let html = '';
 

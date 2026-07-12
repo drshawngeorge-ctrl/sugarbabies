@@ -39,7 +39,8 @@ function makeEl() {
 }
 
 const FIELD_IDS = ['symptomatic', 'persistent', 'nicu', 'metabolic', 'exclusionBanner',
-  'mainForm', 'gaWeeks', 'gaDays', 'sex', 'bw', 'diabetes', 'betaBlocker', 'results'];
+  'mainForm', 'gaWeeks', 'gaDays', 'sex', 'bw', 'diabetes', 'betaBlocker',
+  'iugr', 'asphyxia', 'steroids', 'results'];
 
 const elements = {};
 FIELD_IDS.forEach(id => { elements[id] = makeEl(); });
@@ -59,7 +60,8 @@ let pass = 0, fail = 0;
 const failures = [];
 
 function setInputs({ symptomatic = false, persistent = false, nicu = false, metabolic = false,
-  gaWeeks, gaDays = 0, sex, bw, diabetes = 'none', betaBlocker = false }) {
+  gaWeeks, gaDays = 0, sex, bw, diabetes = 'none', betaBlocker = false,
+  iugr = false, asphyxia = false, steroids = false }) {
   elements.symptomatic.checked = symptomatic;
   elements.persistent.checked = persistent;
   elements.nicu.checked = nicu;
@@ -70,6 +72,9 @@ function setInputs({ symptomatic = false, persistent = false, nicu = false, meta
   elements.bw.value = bw;
   elements.diabetes.value = diabetes;
   elements.betaBlocker.checked = betaBlocker;
+  elements.iugr.checked = iugr;
+  elements.asphyxia.checked = asphyxia;
+  elements.steroids.checked = steroids;
 }
 
 function check(name, inputs, expect) {
@@ -112,7 +117,8 @@ function check(name, inputs, expect) {
   }
 }
 
-const L = { P: 'Preterm', S: 'SGA', L: 'LGA', I: 'Infant of diabetic mother', M: 'Maternal beta-blocker' };
+const L = { P: 'Preterm', S: 'SGA', L: 'LGA', I: 'Infant of diabetic mother', M: 'Maternal beta-blocker',
+  IUGR: 'IUGR', ASPHYX: 'Perinatal asphyxia', STEROIDS: 'Antenatal steroid exposure' };
 
 // ============================================================
 // Reference infants (all male, chosen to land cleanly inside a
@@ -185,6 +191,26 @@ check('Exclusion: persistent >72h', infant(TERM_AGA, { persistent: true }), { ex
 check('Exclusion: NICU', infant(TERM_AGA, { nicu: true }), { excluded: true });
 check('Exclusion: metabolic/endocrine disease', infant(TERM_AGA, { metabolic: true }), { excluded: true });
 check('No exclusion when no flags set', infant(TERM_AGA), { excluded: false });
+
+// ============================================================
+// New risk factors: IUGR, perinatal asphyxia, antenatal steroids
+// ============================================================
+check('IUGR only (term, otherwise AGA)', infant(TERM_AGA, { iugr: true }),
+  { duration: 24, factorsInclude: [L.IUGR] });
+check('Perinatal asphyxia only (term, otherwise AGA)', infant(TERM_AGA, { asphyxia: true }),
+  { duration: 24, factorsInclude: [L.ASPHYX] });
+check('Antenatal steroid exposure only, TERM infant (edge case: steroids given, preterm delivery did not occur)',
+  infant(TERM_AGA, { steroids: true }),
+  { duration: 24, factorsInclude: [L.STEROIDS], factorsExclude: [L.P] });
+check('Antenatal steroids + genuinely preterm (both present, still 24h ceiling)',
+  infant(PT_AGA, { steroids: true }),
+  { duration: 24, factorsInclude: [L.STEROIDS, L.P] });
+check('IUGR + LGA co-occurring (IUGR forces 24h ceiling over LGA\'s 12h)',
+  infant(TERM_LGA, { iugr: true }),
+  { duration: 24, factorsInclude: [L.IUGR, L.L] });
+check('Asphyxia + IDM (24h ceiling from asphyxia overrides IDM\'s 12h)',
+  infant(TERM_AGA, { diabetes: 'gdm', asphyxia: true }),
+  { duration: 24, factorsInclude: [L.ASPHYX, L.I] });
 
 // ============================================================
 // Reference table integrity (static checks, no DOM involved)
