@@ -1,0 +1,1 @@
+export function estimatePercentile(weight:number){ if(weight<2500)return 5; if(weight>4000)return 95; return 50; }

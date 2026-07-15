@@ -1,0 +1,1 @@
+import {describe,it,expect} from "vitest"; import {duration} from "../src/clinical/riskAssessment"; describe("duration",()=>{it("returns max",()=>expect(duration([12,24])).toBe(24));});

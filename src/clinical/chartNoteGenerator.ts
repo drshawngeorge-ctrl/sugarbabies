@@ -1,0 +1,1 @@
+export const brief=(t:string)=>t;

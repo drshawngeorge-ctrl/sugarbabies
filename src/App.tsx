@@ -1,0 +1,1 @@
+import {useState} from "react"; export default function App(){const [bw,setBw]=useState(0); return <div style={{padding:20}}><h1>Neonatal Glucose Surveillance</h1><input type="number" placeholder="Birthweight" onChange={e=>setBw(Number(e.target.value))}/><p>Birthweight: {bw} g</p><button onClick={()=>navigator.clipboard.writeText("Chart note")}>Copy to Chart</button></div>}

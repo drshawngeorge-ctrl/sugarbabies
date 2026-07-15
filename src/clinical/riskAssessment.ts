@@ -1,0 +1,1 @@
+export function duration(vals:number[]){return Math.max(...vals);}
