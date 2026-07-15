@@ -1,1 +1,1 @@
-This is a draft tool for hypoglycemia screening including stratification of birthweight for babies born between 37-42 weeks to accurately identify babies who are LGA (> 90%ile for gestational age) and SGA (<10%ile for gestational age)
+Production starter for neonatal glucose surveillance. Includes Vite, React, TypeScript, policy config, clinical modules and tests.
