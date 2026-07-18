@@ -50,4 +50,57 @@ These conditions require clinical assessment outside the scope of this tool.
 
 ---
 
-## 2. Canadian Birth 
+## 2. Canadian Birth Weight for Gestational Age (BWGA)
+
+### Canadian Perinatal Surveillance System (CPSS) / Kramer et al. reference
+
+Birthweight percentile estimation in this tool is based on the Canadian sex-specific BWGA centile reference (completed weeks 22 to 43).
+
+Reference landing page:
+
+https://www.canada.ca/en/public-health/services/injury-prevention/health-surveillance-epidemiology-division/maternal-infant-health/birth-weight-gestational.html
+
+Reference PDF:
+
+https://www.phac-aspc.gc.ca/rhs-ssg/bwga-pnag/pdf/bwga-pnag_e.pdf
+
+The app uses published centiles at each completed week:
+
+- 3rd
+- 5th
+- 10th
+- 50th
+- 90th
+- 95th
+- 97th
+
+Because LMS parameters are not provided in the public table, percentile values are estimated by interpolation between adjacent completed weeks and adjacent centiles.
+
+---
+
+## 3. Interpretation and Display Notes
+
+- Percentile values shown in the tool are estimates derived from interpolation of the published Canadian BWGA centiles.
+- If estimated values are outside table bounds, the display is reported as:
+  - `< 3rd centile`
+  - `> 90th centile`
+- Growth classification used by the tool:
+  - SGA: <10th percentile
+  - AGA: 10th to 90th percentile
+  - LGA: >90th percentile
+
+---
+
+## 4. Local Policy and Assumption Handling
+
+Where CPS identifies a risk factor but does not provide an explicit surveillance duration, this application applies conservative local assumptions (documented separately) for consistency in bedside workflow.
+
+See:
+
+`CLINICAL_ASSUMPTIONS.md`
+
+---
+
+## 5. Scope Reminder
+
+This tool is for **asymptomatic transitional hypoglycemia** screening support only and is not a substitute for clinician judgment or institutional protocol.
