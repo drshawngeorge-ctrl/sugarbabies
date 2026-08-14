@@ -23,4 +23,18 @@ describe('Note generation', () => {
     expect(full).toContain('Infant of diabetic mother');
     expect(full).toContain('continue to 12h');
   });
+
+  it('brief note uses range message when outOfRange=true', () => {
+    const msg = '< 3rd centile, outside calculable range, verify manually';
+    const brief = generateBriefNote({ ...base, birthweight: 100 }, null, 'OUTSIDE_RANGE', 0, true, msg);
+    expect(brief).toContain(msg);
+    expect(brief).not.toContain('th percentile');
+  });
+
+  it('full assessment uses range message when outOfRange=true', () => {
+    const msg = '> 97th centile, outside calculable range, verify manually';
+    const full = generateFullAssessment({ ...base, birthweight: 9000 }, null, 'OUTSIDE_RANGE', 0, [], true, msg);
+    expect(full).toContain(msg);
+    expect(full).not.toContain('th (');
+  });
 });

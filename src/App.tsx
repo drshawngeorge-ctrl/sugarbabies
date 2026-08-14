@@ -26,18 +26,18 @@ export default function App() {
   const handle = <K extends keyof InfantInput>(k: K, v: InfantInput[K]) =>
     setInput(prev => ({ ...prev, [k]: v }));
 
-  const { pct: percentile, outOfRange } = estimatePercentile(
+  const { pct: percentile, outOfRange, message: rangeMessage } = estimatePercentile(
     input.birthweight,
     input.gaWeeks,
     input.gaDays,
     input.sex
   );
-  const growth = classifyGrowth(percentile);
-  const factors = detectRisks(input, growth);
+  const growth = classifyGrowth({ pct: percentile, outOfRange });
+  const factors = detectRisks(input, growth as 'SGA'|'AGA'|'LGA'|'OUTSIDE_RANGE');
   const duration = computeSurveillanceDuration(factors);
 
-  const brief = generateBriefNote(input, percentile, growth, duration, outOfRange);
-  const full = generateFullAssessment(input, percentile, growth, duration, factors, outOfRange);
+  const brief = generateBriefNote(input, percentile, growth, duration, outOfRange, rangeMessage);
+  const full = generateFullAssessment(input, percentile, growth, duration, factors, outOfRange, rangeMessage);
 
   const excluded =
     input.symptomatic || input.persistent || input.nicu || input.metabolic;
@@ -118,12 +118,12 @@ export default function App() {
               {factors.length === 0 ? (
                 <>
                   <div className="result-headline none">No screening recommended</div>
-                  <div className="growth-summary"><b>{input.gaWeeks}+{input.gaDays} weeks</b> · {input.sex} · {input.birthweight} g · <b>{percentile.toFixed(1)}th percentile</b> ({growth}){outOfRange ? ' — outside table range, verify manually' : ''}</div>
+                  <div className="growth-summary"><b>{input.gaWeeks}+{input.gaDays} weeks</b> · {input.sex} · {input.birthweight} g · {outOfRange ? <b>{rangeMessage}</b> : <><b>{(percentile as number).toFixed(1)}th percentile</b> ({growth})</>}</div>
                 </>
               ) : (
                 <>
                   <div className="result-headline indicated">Glucose surveillance indicated</div>
-                  <div className="growth-summary"><b>{input.gaWeeks}+{input.gaDays} weeks</b> · {input.sex} · {input.birthweight} g · <b>{percentile.toFixed(1)}th percentile</b> ({growth}){outOfRange ? ' — outside table range, verify manually' : ''}</div>
+                  <div className="growth-summary"><b>{input.gaWeeks}+{input.gaDays} weeks</b> · {input.sex} · {input.birthweight} g · {outOfRange ? <b>{rangeMessage}</b> : <><b>{(percentile as number).toFixed(1)}th percentile</b> ({growth})</>}</div>
                   <div className="factor-list">
                     {factors.map(f => <span key={f.key} className={`factor-pill ${f.assumption ? 'assumption' : ''}`}>{f.label}</span>)}
                   </div>
