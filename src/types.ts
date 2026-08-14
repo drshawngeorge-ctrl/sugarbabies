@@ -18,8 +18,9 @@ export interface InfantInput {
 }
 
 export interface PercentileResult {
-  pct: number;
+  pct: number | null;
   outOfRange: boolean;
+  message?: string;
 }
 
 export interface Factor {

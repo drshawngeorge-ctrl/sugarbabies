@@ -13,7 +13,7 @@ const DURATION_HOURS: Record<string, number> = {
   ANTENATAL_STEROIDS: 24
 };
 
-export function detectRisks(input: InfantInput, growth: 'SGA'|'AGA'|'LGA') {
+export function detectRisks(input: InfantInput, growth: 'SGA'|'AGA'|'LGA'|'OUTSIDE_RANGE') {
   const factors: Factor[] = [];
   if (input.gaWeeks < 37) factors.push({ key: 'PRETERM', label: 'Preterm (<37w)', assumption: false });
   if (growth === 'SGA') factors.push({ key: 'SGA', label: 'SGA (<10th %ile)', assumption: false });
