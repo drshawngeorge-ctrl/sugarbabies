@@ -19,6 +19,7 @@ export interface InfantInput {
 
 export interface PercentileResult {
   pct: number | null;
+  classification: 'SGA' | 'AGA' | 'LGA';
   outOfRange: boolean;
   message?: string;
 }

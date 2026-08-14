@@ -14,16 +14,28 @@ export function interpAtPercentile(gaWeeks: number, gaDays: number, sex: Sex, ke
 export function estimatePercentile(bw: number, gaWeeks: number, gaDays: number, sex: Sex): PercentileResult {
   const values = KEYS.map(k => interpAtPercentile(gaWeeks, gaDays, sex, k));
   if (bw < values[0]) {
-    return { pct: null, outOfRange: true, message: '< 3rd centile, outside calculable range, verify manually' };
+    return {
+      pct: null,
+      classification: 'SGA',
+      outOfRange: true,
+      message: '< 3rd centile, outside calculable range, verify manually'
+    };
   }
   if (bw > values[values.length - 1]) {
-    return { pct: null, outOfRange: true, message: '> 97th centile, outside calculable range, verify manually' };
+    return {
+      pct: null,
+      classification: 'LGA',
+      outOfRange: true,
+      message: '> 97th centile, outside calculable range, verify manually'
+    };
   }
   for (let i = 0; i < values.length - 1; i++) {
     if (bw >= values[i] && bw <= values[i + 1]) {
       const frac = (bw - values[i]) / (values[i + 1] - values[i]);
-      return { pct: BANDS[i] + frac * (BANDS[i + 1] - BANDS[i]), outOfRange: false };
+      const pct = BANDS[i] + frac * (BANDS[i + 1] - BANDS[i]);
+      const classification = pct < 10 ? 'SGA' : pct > 90 ? 'LGA' : 'AGA';
+      return { pct, classification, outOfRange: false };
     }
   }
-  return { pct: 50, outOfRange: false };
+  return { pct: 50, classification: 'AGA', outOfRange: false };
 }

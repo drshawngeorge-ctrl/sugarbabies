@@ -2,7 +2,7 @@ import { InfantInput, Factor } from '../types';
 
 export function generateBriefNote(input: InfantInput, percentile: number | null, growth: string, duration: number, outOfRange: boolean, rangeMessage?: string) {
   const pctText = outOfRange
-    ? (rangeMessage ?? 'outside calculable range, verify manually')
+    ? `${growth} (${rangeMessage ?? 'outside calculable range, verify manually'})`
     : `${(percentile as number).toFixed(1)}th percentile (${growth})`;
   const parts = [
     `${input.gaWeeks}+${input.gaDays} weeks`,
@@ -33,7 +33,7 @@ export function generateFullAssessment(
   rangeMessage?: string
 ) {
   const pctLine = outOfRange
-    ? (rangeMessage ?? 'outside calculable range, verify manually')
+    ? `${growth} (${rangeMessage ?? 'outside calculable range, verify manually'})`
     : `${(percentile as number).toFixed(2)}th (${growth})`;
   const header = `Full assessment — ${input.gaWeeks}+${input.gaDays} weeks · ${input.sex} · ${input.birthweight} g\nEstimated percentile: ${pctLine}\n`;
   const factorLines = factors.length ? factors.map(f => `- ${f.label}${f.assumption ? ' (assumption)' : ''}`).join('\n') : '- None';
