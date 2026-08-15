@@ -82,8 +82,8 @@ Because LMS parameters are not provided in the public table, percentile values a
 
 - Percentile values shown in the tool are estimates derived from interpolation of the published Canadian BWGA centiles.
 - If estimated values are outside table bounds, the display is reported as:
-  - `< 3rd centile`
-  - `> 90th centile`
+  - `< 3rd centile, outside calculable range, verify manually`
+  - `> 97th centile, outside calculable range, verify manually`
 - Growth classification used by the tool:
   - SGA: <10th percentile
   - AGA: 10th to 90th percentile
