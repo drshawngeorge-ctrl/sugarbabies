@@ -27,16 +27,14 @@ describe('Note generation', () => {
   it('brief note uses range message when outOfRange=true', () => {
     const msg = '< 3rd centile, outside calculable range, verify manually';
     const brief = generateBriefNote({ ...base, birthweight: 100 }, null, 'SGA', 0, true, msg);
-    expect(brief).toContain('SGA');
-    expect(brief).toContain(msg);
+    expect(brief).toContain(`${msg} (SGA)`);
     expect(brief).not.toContain('th percentile');
   });
 
   it('full assessment uses range message when outOfRange=true', () => {
-    const msg = '> 97th centile, outside calculable range, verify manually';
+    const msg = '> 97%ile, outside calculable range, verify manually';
     const full = generateFullAssessment({ ...base, birthweight: 9000 }, null, 'LGA', 0, [], true, msg);
-    expect(full).toContain('LGA');
-    expect(full).toContain(msg);
+    expect(full).toContain(`Estimated percentile: ${msg} (LGA)`);
     expect(full).not.toContain('th (');
   });
 });

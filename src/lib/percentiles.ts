@@ -26,7 +26,7 @@ export function estimatePercentile(bw: number, gaWeeks: number, gaDays: number, 
       pct: null,
       classification: 'LGA',
       outOfRange: true,
-      message: '> 97th centile, outside calculable range, verify manually'
+      message: '> 97%ile, outside calculable range, verify manually'
     };
   }
   for (let i = 0; i < values.length - 1; i++) {
