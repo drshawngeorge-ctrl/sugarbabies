@@ -63,4 +63,18 @@ describe('Percentile calculations and classification', () => {
     expect(high.pct).not.toBeNull();
     expect(high.classification).toBe('LGA');
   });
+
+  it('exactly at 3rd centile remains calculable and classified in-range', () => {
+    const result = estimatePercentile(REF.male[40].p3, 40, 0, 'male' as any);
+    expect(result.outOfRange).toBe(false);
+    expect(result.pct).toBe(3);
+    expect(classifyGrowth(result)).toBe('SGA');
+  });
+
+  it('exactly at 97th centile remains calculable and classified in-range', () => {
+    const result = estimatePercentile(REF.male[40].p97, 40, 0, 'male' as any);
+    expect(result.outOfRange).toBe(false);
+    expect(result.pct).toBe(97);
+    expect(classifyGrowth(result)).toBe('LGA');
+  });
 });
