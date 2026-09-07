@@ -6,6 +6,7 @@ describe('Initial form state', () => {
     expect(initialFormState.gaWeeks).toBe('');
     expect(initialFormState.gaDays).toBe('');
     expect(initialFormState.birthweight).toBe('');
+    expect(initialFormState.sex).toBe('');
   });
 
   it('does not produce a usable InfantInput while blank', () => {
@@ -15,10 +16,11 @@ describe('Initial form state', () => {
   it('returns null when only some fields are filled in', () => {
     expect(toInfantInput({ ...initialFormState, gaWeeks: 40 })).toBeNull();
     expect(toInfantInput({ ...initialFormState, gaWeeks: 40, gaDays: 0 })).toBeNull();
+    expect(toInfantInput({ ...initialFormState, gaWeeks: 40, gaDays: 0, birthweight: 3613 })).toBeNull();
   });
 
   it('returns a valid InfantInput once all numeric fields are entered', () => {
-    const infant = toInfantInput({ ...initialFormState, gaWeeks: 40, gaDays: 0, birthweight: 3613 });
+    const infant = toInfantInput({ ...initialFormState, gaWeeks: 40, gaDays: 0, birthweight: 3613, sex: 'male' });
     expect(infant).toEqual({
       gaWeeks: 40,
       gaDays: 0,
@@ -36,8 +38,12 @@ describe('Initial form state', () => {
     });
   });
 
+  it('returns null when sex is not selected', () => {
+    expect(toInfantInput({ ...initialFormState, gaWeeks: 40, gaDays: 0, birthweight: 3613, sex: '' })).toBeNull();
+  });
+
   it('rejects a non-positive birthweight', () => {
-    expect(toInfantInput({ ...initialFormState, gaWeeks: 40, gaDays: 0, birthweight: 0 })).toBeNull();
-    expect(toInfantInput({ ...initialFormState, gaWeeks: 40, gaDays: 0, birthweight: -10 })).toBeNull();
+    expect(toInfantInput({ ...initialFormState, gaWeeks: 40, gaDays: 0, birthweight: 0, sex: 'male' })).toBeNull();
+    expect(toInfantInput({ ...initialFormState, gaWeeks: 40, gaDays: 0, birthweight: -10, sex: 'male' })).toBeNull();
   });
 });

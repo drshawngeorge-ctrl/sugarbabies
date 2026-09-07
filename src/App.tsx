@@ -65,6 +65,7 @@ export default function App() {
                 <div className="field">
                   <label>Sex</label>
                   <select value={input.sex} onChange={e => handle('sex', e.target.value as any)}>
+                    <option value="" disabled>Select…</option>
                     <option value="male">Male</option>
                     <option value="female">Female</option>
                   </select>
