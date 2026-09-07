@@ -1,41 +1,26 @@
 import React, { useState } from 'react';
-import { InfantInput } from './types';
+import { InfantFormState, initialFormState, toInfantInput } from './lib/form';
 import { estimatePercentile } from './lib/percentiles';
 import { detectRisks, computeSurveillanceDuration } from './lib/risk';
 import { generateBriefNote, generateFullAssessment } from './utils/notes';
 import './index.css';
 
 export default function App() {
-  const [input, setInput] = useState<InfantInput>({
-    gaWeeks: 40,
-    gaDays: 0,
-    sex: 'male',
-    birthweight: 3613,
-    diabetes: 'none',
-    maternalBetaBlocker: false,
-    iugr: false,
-    perinatalAsphyxia: false,
-    antenatalSteroids: false,
-    symptomatic: false,
-    persistent: false,
-    nicu: false,
-    metabolic: false,
-  });
+  const [input, setInput] = useState<InfantFormState>(initialFormState);
 
-  const handle = <K extends keyof InfantInput>(k: K, v: InfantInput[K]) =>
+  const handle = <K extends keyof InfantFormState>(k: K, v: InfantFormState[K]) =>
     setInput(prev => ({ ...prev, [k]: v }));
 
-  const { pct: percentile, outOfRange, message: rangeMessage, classification: growth } = estimatePercentile(
-    input.birthweight,
-    input.gaWeeks,
-    input.gaDays,
-    input.sex
-  );
-  const factors = detectRisks(input, growth);
+  const infant = toInfantInput(input);
+
+  const { pct: percentile, outOfRange, message: rangeMessage, classification: growth } = infant
+    ? estimatePercentile(infant.birthweight, infant.gaWeeks, infant.gaDays, infant.sex)
+    : { pct: null as number | null, outOfRange: false, message: undefined as string | undefined, classification: 'AGA' as const };
+  const factors = infant ? detectRisks(infant, growth) : [];
   const duration = computeSurveillanceDuration(factors);
 
-  const brief = generateBriefNote(input, percentile, growth, duration, outOfRange, rangeMessage);
-  const full = generateFullAssessment(input, percentile, growth, duration, factors, outOfRange, rangeMessage);
+  const brief = infant ? generateBriefNote(infant, percentile, growth, duration, outOfRange, rangeMessage) : '';
+  const full = infant ? generateFullAssessment(infant, percentile, growth, duration, factors, outOfRange, rangeMessage) : '';
 
   const excluded =
     input.symptomatic || input.persistent || input.nicu || input.metabolic;
@@ -71,11 +56,11 @@ export default function App() {
               <div className="row3">
                 <div className="field">
                   <label>GA (weeks)</label>
-                  <input type="number" min={22} max={43} value={input.gaWeeks} onChange={e => handle('gaWeeks', Number(e.target.value))} />
+                  <input type="number" min={22} max={43} value={input.gaWeeks} onChange={e => handle('gaWeeks', e.target.value === '' ? '' : Number(e.target.value))} />
                 </div>
                 <div className="field">
                   <label>GA (+days)</label>
-                  <input type="number" min={0} max={6} value={input.gaDays} onChange={e => handle('gaDays', Number(e.target.value))} />
+                  <input type="number" min={0} max={6} value={input.gaDays} onChange={e => handle('gaDays', e.target.value === '' ? '' : Number(e.target.value))} />
                 </div>
                 <div className="field">
                   <label>Sex</label>
@@ -87,7 +72,7 @@ export default function App() {
               </div>
               <div className="field">
                 <label>Birthweight (g)</label>
-                <input type="number" min={200} max={6000} value={input.birthweight} onChange={e => handle('birthweight', Number(e.target.value))} />
+                <input type="number" min={200} max={6000} value={input.birthweight} onChange={e => handle('birthweight', e.target.value === '' ? '' : Number(e.target.value))} />
               </div>
             </div>
 
@@ -112,8 +97,13 @@ export default function App() {
               <label className="check"><input type="checkbox" checked={input.antenatalSteroids} onChange={e => handle('antenatalSteroids', e.target.checked)} /> Antenatal corticosteroid exposure</label>
             </div>
 
-            <div className={`result-card ${factors.length ? 'indicated' : 'none'}`}>
-              {factors.length === 0 ? (
+            <div className={`result-card ${!infant ? 'none' : factors.length ? 'indicated' : 'none'}`}>
+              {!infant ? (
+                <>
+                  <div className="result-headline none">Enter infant details</div>
+                  <div className="growth-summary">Enter gestational age and birthweight above to see the surveillance recommendation.</div>
+                </>
+              ) : factors.length === 0 ? (
                 <>
                   <div className="result-headline none">No screening recommended</div>
                   <div className="growth-summary"><b>{input.gaWeeks}+{input.gaDays} weeks</b> · {input.sex} · {input.birthweight} g · {outOfRange ? <><b>{growth}</b> ({rangeMessage})</> : <><b>{(percentile as number).toFixed(1)}th percentile</b> ({growth})</>}</div>
