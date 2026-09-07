@@ -30,6 +30,40 @@ describe('Percentile calculations and classification', () => {
     expect(classifyGrowth(result)).toBe('LGA');
   });
 
+  it('interpolates numeric percentiles between p90 and p95 (e.g. ~92-93rd)', () => {
+    const { p90, p95 } = REF.male[40];
+    const bw = Math.round((p90 + p95) / 2);
+    const result = estimatePercentile(bw, 40, 0, 'male' as any);
+    expect(result.outOfRange).toBe(false);
+    expect(result.pct).not.toBeNull();
+    expect(result.pct as number).toBeGreaterThan(90);
+    expect(result.pct as number).toBeLessThan(95);
+    expect(result.classification).toBe('LGA');
+    expect(classifyGrowth(result)).toBe('LGA');
+  });
+
+  it('interpolates numeric percentiles between p95 and p97 (e.g. ~96th)', () => {
+    const { p95, p97 } = REF.male[40];
+    const bw = Math.round((p95 + p97) / 2);
+    const result = estimatePercentile(bw, 40, 0, 'male' as any);
+    expect(result.outOfRange).toBe(false);
+    expect(result.pct).not.toBeNull();
+    expect(result.pct as number).toBeGreaterThan(95);
+    expect(result.pct as number).toBeLessThan(97);
+    expect(result.classification).toBe('LGA');
+    expect(classifyGrowth(result)).toBe('LGA');
+  });
+
+  it('interpolates a value just under the 97th centile as calculable, in-range, and >90', () => {
+    const { p97 } = REF.male[40];
+    const result = estimatePercentile(p97 - 1, 40, 0, 'male' as any);
+    expect(result.outOfRange).toBe(false);
+    expect(result.pct).not.toBeNull();
+    expect(result.pct as number).toBeGreaterThan(90);
+    expect(result.pct as number).toBeLessThan(97);
+    expect(result.classification).toBe('LGA');
+  });
+
   it('interpolates by days between weeks', () => {
     const mid = estimatePercentile((REF.male[39].p50 + REF.male[40].p50) / 2, 39, 3, 'male' as any);
     expect(mid.pct).not.toBeNull();
