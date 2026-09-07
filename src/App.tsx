@@ -116,12 +116,12 @@ export default function App() {
               {factors.length === 0 ? (
                 <>
                   <div className="result-headline none">No screening recommended</div>
-                  <div className="growth-summary"><b>{input.gaWeeks}+{input.gaDays} weeks</b> · {input.sex} · {input.birthweight} g · {outOfRange ? <><b>{growth}</b> ({rangeMessage})</> : <><b>{(percentile as number).toFixed(1)}th percentile</b> ({growth})</>}</div>
+                  <div className="growth-summary"><b>{input.gaWeeks}+{input.gaDays} weeks</b> · {input.sex} · {input.birthweight} g · {outOfRange ? (growth === 'LGA' ? <>{rangeMessage}</> : <><b>{growth}</b> ({rangeMessage})</>) : <><b>{(percentile as number).toFixed(1)}th percentile</b> ({growth})</>}</div>
                 </>
               ) : (
                 <>
                   <div className="result-headline indicated">Glucose surveillance indicated</div>
-                  <div className="growth-summary"><b>{input.gaWeeks}+{input.gaDays} weeks</b> · {input.sex} · {input.birthweight} g · {outOfRange ? <><b>{growth}</b> ({rangeMessage})</> : <><b>{(percentile as number).toFixed(1)}th percentile</b> ({growth})</>}</div>
+                  <div className="growth-summary"><b>{input.gaWeeks}+{input.gaDays} weeks</b> · {input.sex} · {input.birthweight} g · {outOfRange ? (growth === 'LGA' ? <>{rangeMessage}</> : <><b>{growth}</b> ({rangeMessage})</>) : <><b>{(percentile as number).toFixed(1)}th percentile</b> ({growth})</>}</div>
                   <div className="factor-list">
                     {factors.map(f => <span key={f.key} className={`factor-pill ${f.assumption ? 'assumption' : ''}`}>{f.label}</span>)}
                   </div>

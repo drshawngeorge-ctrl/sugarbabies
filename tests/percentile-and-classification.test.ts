@@ -83,7 +83,7 @@ describe('Percentile calculations and classification', () => {
     expect(result.outOfRange).toBe(true);
     expect(result.pct).toBeNull();
     expect(result.classification).toBe('LGA');
-    expect(result.message).toBe('> 97%ile, outside calculable range, verify manually');
+    expect(result.message).toBe('> 97th centile (LGA) - outside table range, verify manually');
   });
 
   it('at 3rd and 97th centiles remains calculable and in-range', () => {
