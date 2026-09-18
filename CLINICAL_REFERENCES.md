@@ -60,9 +60,9 @@ Reference landing page:
 
 https://www.canada.ca/en/public-health/services/injury-prevention/health-surveillance-epidemiology-division/maternal-infant-health/birth-weight-gestational.html
 
-Reference PDF:
+Reference PDF (official PHAC poster):
 
-https://www.phac-aspc.gc.ca/rhs-ssg/bwga-pnag/pdf/bwga-pnag_e.pdf
+https://www.canada.ca/content/dam/phac-aspc/migration/phac-aspc/rhs-ssg/bwga-pnag/pdf/bwga-pnag-poster_e.pdf
 
 The app uses published centiles at each completed week:
 
