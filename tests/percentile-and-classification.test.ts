@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { estimatePercentile } from '../src/lib/percentiles';
 import { classifyGrowth } from '../src/lib/classify';
-import { REF } from '../src/lib/ref';
+import { REF, KEYS } from '../src/lib/ref';
 
 describe('Percentile calculations and classification', () => {
   it('term male 40wk 3613g is p50 and AGA', () => {
@@ -29,9 +29,34 @@ describe('Percentile calculations and classification', () => {
     const result = estimatePercentile(2552, 37, 0, 'male' as any);
     expect(result.outOfRange).toBe(false);
     expect(result.pct).not.toBeNull();
-    expect(result.classification).toBe('SGA');
-    expect(result.pct as number).toBeCloseTo(10, 2);
-    expect(classifyGrowth(result)).toBe('SGA');
+    expect(result.classification).toBe('AGA');
+    expect(result.pct).toBe(10);
+    expect(classifyGrowth(result)).toBe('AGA');
+  });
+
+  it('audits every official gestational week and percentile band for both sexes', () => {
+    const weeks = Array.from({ length: 22 }, (_, index) => index + 22);
+    const sexes = ['male', 'female'] as const;
+
+    for (const sex of sexes) {
+      expect(Object.keys(REF[sex]).map(Number)).toEqual(weeks);
+
+      for (const week of weeks) {
+        const row = REF[sex][week];
+        expect(row, `${sex} ${week} weeks is missing`).toBeDefined();
+
+        for (let index = 0; index < KEYS.length - 1; index += 1) {
+          const lowerKey = KEYS[index];
+          const upperKey = KEYS[index + 1];
+          expect(row[lowerKey], `${sex} ${week}w ${lowerKey} > ${upperKey}`).toBeLessThanOrEqual(row[upperKey]);
+        }
+
+        for (const key of KEYS) {
+          expect(Number.isInteger(row[key]), `${sex} ${week}w ${key} is not an integer`).toBe(true);
+          expect(row[key], `${sex} ${week}w ${key} is not a positive gram value`).toBeGreaterThan(0);
+        }
+      }
+    }
   });
 
   it('SGA threshold under 10th percentile', () => {
