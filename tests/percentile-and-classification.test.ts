@@ -14,6 +14,16 @@ describe('Percentile calculations and classification', () => {
     expect(classifyGrowth(result)).toBe('AGA');
   });
 
+  it('female 37w threshold values match official Canadian table', () => {
+    expect(REF.female[37]).toMatchObject({ p3: 2177, p5: 2286, p10: 2452, p50: 2968, p90: 3543, p95: 3752, p97: 3886 });
+    const result = estimatePercentile(2310, 37, 1, 'female' as any);
+    expect(result.outOfRange).toBe(false);
+    expect(result.pct).not.toBeNull();
+    expect(result.classification).toBe('SGA');
+    expect(result.pct as number).toBeLessThan(5);
+    expect(classifyGrowth(result)).toBe('SGA');
+  });
+
   it('SGA threshold under 10th percentile', () => {
     const result = estimatePercentile(2950, 40, 0, 'male' as any);
     expect(result.pct).not.toBeNull();
