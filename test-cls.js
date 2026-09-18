@@ -2,7 +2,7 @@
 /**
  * test-cls.js — Regression suite for the CLS v1.0 neonatal glucose surveillance tool.
  *
- * Runs the EXACT script embedded in index.html (extracted and eval'd against a
+ * Runs the EXACT script embedded in docs/original-claude-prototype.html (extracted and eval'd against a
  * mocked DOM), not a reimplementation — so this test suite fails if index.html's
  * logic changes in a way that breaks any decision-table row or reference data
  * integrity check.
@@ -14,14 +14,16 @@
  * No npm install required — pure Node, no dependencies.
  */
 
-const fs = require('fs');
-const path = require('path');
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const indexPath = path.join(__dirname, 'index.html');
-const content = fs.readFileSync(indexPath, 'utf8');
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const prototypePath = path.join(__dirname, 'docs', 'original-claude-prototype.html');
+const content = fs.readFileSync(prototypePath, 'utf8');
 const match = content.match(/<script>([\s\S]*?)<\/script>/);
 if (!match) {
-  console.error('Could not find <script> block in index.html');
+  console.error('Could not find <script> block in docs/original-claude-prototype.html');
   process.exit(1);
 }
 const script = match[1];
@@ -53,7 +55,7 @@ global.document = {
 // `const` bindings from eval() don't leak to the enclosing scope the way function
 // declarations do — append explicit exposure lines and eval as ONE call so they
 // share REF's lexical scope. This changes nothing about the app's own logic.
-eval(script + '\nglobal.REF = REF; global.BASE_DURATION = BASE_DURATION;');
+eval(script + '\nglobalThis.REF = REF; globalThis.BASE_DURATION = BASE_DURATION; globalThis.computeAll = computeAll;');
 
 // ---- Test runner ----
 let pass = 0, fail = 0;
@@ -79,7 +81,7 @@ function setInputs({ symptomatic = false, persistent = false, nicu = false, meta
 
 function check(name, inputs, expect) {
   setInputs(inputs);
-  computeAll();
+  globalThis.computeAll();
   const html = elements.results.innerHTML;
   const excluded = elements.exclusionBanner.style.display === 'block';
 
@@ -211,6 +213,10 @@ check('IUGR + LGA co-occurring (IUGR forces 24h ceiling over LGA\'s 12h)',
 check('Asphyxia + IDM (24h ceiling from asphyxia overrides IDM\'s 12h)',
   infant(TERM_AGA, { diabetes: 'gdm', asphyxia: true }),
   { duration: 24, factorsInclude: [L.ASPHYX, L.I] });
+
+check('Female 37+1 weeks, 2310 g renders as SGA rather than ~10.9th percentile',
+  { gaWeeks: 37, gaDays: 1, sex: 'female', bw: 2310, diabetes: 'none', betaBlocker: false },
+  { duration: 24, factorsInclude: [L.S] });
 
 // ============================================================
 // Reference table integrity (static checks, no DOM involved)
