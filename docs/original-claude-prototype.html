@@ -429,13 +429,22 @@ function computeAll(){
   if (asphyxia) factors.push({key:'ASPHYXIA', label:'Perinatal asphyxia', assumption:true});
   if (steroids) factors.push({key:'ANTENATAL_STEROIDS', label:'Antenatal steroid exposure', assumption:true});
 
+  let pctSummary;
+  if (outOfRange && growth === 'LGA') {
+    pctSummary = '> 97th centile (LGA) - outside table range, verify manually';
+  } else if (outOfRange) {
+    pctSummary = `<b>${pct.toFixed(1)}th percentile</b> (${growth}) — outside table range, verify manually`;
+  } else {
+    pctSummary = `<b>${pct.toFixed(1)}th percentile</b> (${growth})`;
+  }
+
   let html = '';
 
   if (factors.length === 0){
     html += `
       <div class="result-card none">
         <div class="result-headline none">No screening recommended</div>
-        <div class="growth-summary"><b>${gaWeeks}+${gaDays} weeks</b> · ${sex} · ${bw} g · <b>${pct.toFixed(1)}th percentile</b> (${growth})${outOfRange ? ' — outside table range, verify manually' : ''}</div>
+        <div class="growth-summary"><b>${gaWeeks}+${gaDays} weeks</b> · ${sex} · ${bw} g · ${pctSummary}</div>
       </div>`;
   } else {
     const durationKeys = factors.map(f => f.key);
@@ -444,7 +453,7 @@ function computeAll(){
     html += `
       <div class="result-card indicated">
         <div class="result-headline indicated">Glucose surveillance indicated</div>
-        <div class="growth-summary"><b>${gaWeeks}+${gaDays} weeks</b> · ${sex} · ${bw} g · <b>${pct.toFixed(1)}th percentile</b> (${growth})${outOfRange ? ' — outside table range, verify manually' : ''}</div>
+        <div class="growth-summary"><b>${gaWeeks}+${gaDays} weeks</b> · ${sex} · ${bw} g · ${pctSummary}</div>
         <div class="factor-list">
           ${factors.map(f => `<span class="factor-pill ${f.assumption ? 'assumption':''}">${f.label}</span>`).join('')}
         </div>
