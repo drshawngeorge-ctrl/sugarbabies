@@ -19,9 +19,16 @@ describe('Risk detection and durations', () => {
   });
 
   it('IDM yields 12h', () => {
-    const input = { ...baseInput(), diabetes: 'gdm' };
+    const input: InfantInput = { ...baseInput(), diabetes: 'gdm' };
     const factors = detectRisks(input, 'AGA');
     expect(factors.some(f => f.key === 'IDM')).toBe(true);
+    expect(computeSurveillanceDuration(factors)).toBe(12);
+  });
+
+  it('LGA yields a screening factor and 12h duration', () => {
+    const input = baseInput();
+    const factors = detectRisks(input, 'LGA');
+    expect(factors.some(f => f.key === 'LGA')).toBe(true);
     expect(computeSurveillanceDuration(factors)).toBe(12);
   });
 
@@ -45,7 +52,7 @@ describe('Risk detection and durations', () => {
   });
 
   it('preterm + IDM -> 24h (preterm ceiling)', () => {
-    const input = { ...baseInput(), gaWeeks: 34, diabetes: 'type1' };
+    const input: InfantInput = { ...baseInput(), gaWeeks: 34, diabetes: 'type1' };
     const factors = detectRisks(input, 'AGA');
     expect(computeSurveillanceDuration(factors)).toBe(24);
   });

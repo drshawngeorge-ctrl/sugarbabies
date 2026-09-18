@@ -54,6 +54,18 @@ describe('Percentile calculations and classification', () => {
     expect(classifyGrowth(result)).toBe('LGA');
   });
 
+  it('39+0 male 4240g is ~95.1th percentile and classified LGA', () => {
+    expect(REF.male[39]).toMatchObject({ p90: 4049, p95: 4232, p97: 4361 });
+    const result = estimatePercentile(4240, 39, 0, 'male' as any);
+    expect(result.outOfRange).toBe(false);
+    expect(result.pct).not.toBeNull();
+    expect(result.pct as number).toBeGreaterThan(95);
+    expect(result.pct as number).toBeLessThan(97);
+    expect(result.pct as number).toBeCloseTo(95.1240310078, 6);
+    expect(result.classification).toBe('LGA');
+    expect(classifyGrowth(result)).toBe('LGA');
+  });
+
   it('interpolates a value just under the 97th centile as calculable, in-range, and >90', () => {
     const { p97 } = REF.male[40];
     const result = estimatePercentile(p97 - 1, 40, 0, 'male' as any);
