@@ -352,28 +352,43 @@ const REF = {
 const BANDS = [3,5,10,50,90,95,97];
 const KEYS = ['p3','p5','p10','p50','p90','p95','p97'];
 
-function clampWeek(w){ return Math.max(22, Math.min(43, w)); }
+function clampWeek(w){ return Math.max(22, Math.min(43, Math.floor(w))); }
 
 function interpAtPercentile(gaWeeks, gaDays, sex, key){
   const w = clampWeek(gaWeeks);
   const a = REF[sex][w];
   const b = REF[sex][clampWeek(w+1)];
-  const frac = gaDays/7;
+  const frac = Math.max(0, Math.min(1, gaDays/7));
   return a[key] + frac*(b[key]-a[key]);
 }
 
 function estimatePercentile(bw, gaWeeks, gaDays, sex){
   const values = KEYS.map(k => interpAtPercentile(gaWeeks, gaDays, sex, k));
-  let outOfRange = false;
-  if (bw <= values[0]) { outOfRange = true; return {pct: BANDS[0], outOfRange}; }
-  if (bw >= values[values.length-1]) { outOfRange = true; return {pct: BANDS[BANDS.length-1], outOfRange}; }
+  if (bw < values[0]) {
+    return {
+      pct: null,
+      classification: 'SGA',
+      outOfRange: true,
+      message: '< 3rd centile, outside calculable range, verify manually'
+    };
+  }
+  if (bw > values[values.length-1]) {
+    return {
+      pct: null,
+      classification: 'LGA',
+      outOfRange: true,
+      message: '> 97th centile (LGA) - outside table range, verify manually'
+    };
+  }
   for (let i=0;i<values.length-1;i++){
     if (bw >= values[i] && bw <= values[i+1]){
       const frac = (bw - values[i])/(values[i+1]-values[i]);
-      return {pct: BANDS[i] + frac*(BANDS[i+1]-BANDS[i]), outOfRange:false};
+      const pct = BANDS[i] + frac*(BANDS[i+1]-BANDS[i]);
+      const classification = pct < 10 ? 'SGA' : pct > 90 ? 'LGA' : 'AGA';
+      return {pct, classification, outOfRange:false};
     }
   }
-  return {pct: 50, outOfRange:false};
+  return {pct: 50, classification: 'AGA', outOfRange:false};
 }
 
 // ---- Duration rules ----
@@ -414,10 +429,7 @@ function computeAll(){
     return;
   }
 
-  const { pct, outOfRange } = estimatePercentile(bw, gaWeeks, gaDays, sex);
-  let growth = 'AGA';
-  if (pct < 10) growth = 'SGA';
-  else if (pct > 90) growth = 'LGA';
+  const { pct, outOfRange, classification: growth, message } = estimatePercentile(bw, gaWeeks, gaDays, sex);
 
   const factors = [];
   if (gaWeeks < 37) factors.push({key:'PRETERM', label:'Preterm (<37w)', assumption:false});
@@ -431,9 +443,9 @@ function computeAll(){
 
   let pctSummary;
   if (outOfRange && growth === 'LGA') {
-    pctSummary = '> 97th centile (LGA) - outside table range, verify manually';
+    pctSummary = message;
   } else if (outOfRange) {
-    pctSummary = `<b>${pct.toFixed(1)}th percentile</b> (${growth}) — outside table range, verify manually`;
+    pctSummary = `<b>${growth}</b> (${message})`;
   } else {
     pctSummary = `<b>${pct.toFixed(1)}th percentile</b> (${growth})`;
   }
